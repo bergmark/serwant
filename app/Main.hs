@@ -1,6 +1,8 @@
+{-# LANGUAGE NoImplicitPrelude #-}
 module Main where
 
-import Lib
+import Lib (startApp)
+import Prelude (IO)
 
 main :: IO ()
 main = startApp
