@@ -25,13 +25,19 @@ library
     OverloadedStrings
     TypeOperators
   other-modules:
+    Api.Post
     Api.User
     ApiTypes
     MyPrelude
+    Type.CreatePost
+    Type.Post
+    Type.PostError
     Type.Range
+    Type.Reason
     Type.ToServantErr
     Type.User
     Type.UserInfo
+    Type.UserPost
     Type.UserSignupError
   exposed-modules:
     Lib

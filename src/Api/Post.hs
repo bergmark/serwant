@@ -13,6 +13,8 @@ import qualified Data.Text     as T
 
 import ApiTypes
 import Type.CreatePost (CreatePost)
+import qualified Type.Range as Range
+import Type.Range (Range)
 import Type.Post (Post (Post))
 import Type.PostError (PostError (..))
 import Type.Reason
@@ -57,12 +59,10 @@ get i = do
     Just a  -> return a
 
 -- | List Posts with the most recent posts first.
-list :: Maybe Word -> Maybe Word -> BlogApi [Post]
-list mOffset mLimit = do
-  let offset = maybe id (drop . fromIntegral) mOffset
-  let limit = maybe id (take . fromIntegral) mLimit
+list :: Range -> BlogApi [Post]
+list r = do
   psts <- liftIO . atomically . readTVar =<< asks posts
-  pure . limit . offset . sortBy (flip $ comparing Post.createdTime) . Set.toList $ psts
+  pure . Range.list r . sortBy (flip $ comparing Post.createdTime) . Set.toList $ psts
 
 create :: UserPost -> ExceptT PostError BlogApi Post
 create (UserPost usr pst) = do

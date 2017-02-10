@@ -9,6 +9,8 @@ import qualified Data.Text     as T
 import ApiTypes (BlogApi, ServerData (..))
 import Type.User (User)
 import Type.UserInfo (UserInfo (..))
+import Type.Range (Range (Range))
+import qualified Type.Range as Range
 import Type.UserSignupError (UserSignupError (..))
 import qualified Type.User as User
 import qualified Type.UserInfo as UserInfo
@@ -26,12 +28,10 @@ import qualified Type.UserInfo as UserInfo
 --   , R.create = Just create -- PUT /user creates a new user
 --   }
 
-list :: Maybe Word -> Maybe Word -> BlogApi [UserInfo]
-list mOffset mLimit = do
-  let offset = maybe id (drop . fromIntegral) mOffset
-  let limit = maybe id (take . fromIntegral) mLimit
+list :: Range -> BlogApi [UserInfo]
+list r = do
   usrs <- liftIO . atomically . readTVar =<< asks users
-  pure . fmap toUserInfo . limit . offset . Set.toList $ usrs
+  pure . fmap toUserInfo . Range.list r . Set.toList $ usrs
 
 create :: User -> ExceptT UserSignupError BlogApi UserInfo
 create usr = do
@@ -44,9 +44,6 @@ create usr = do
         then pure . Just $ InvalidUserName
         else modifyTVar usrs (Set.insert usr) >> pure Nothing
   maybe (pure $ toUserInfo usr) throwError merr
-
-domainReason :: a -> UserSignupError
-domainReason = error "domainReason"
 
 -- | Convert a User into a representation that is safe to show to the public.
 toUserInfo :: User -> UserInfo

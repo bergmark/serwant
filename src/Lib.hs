@@ -20,6 +20,8 @@ import qualified Type.Post
 import Type.UserPost (UserPost)
 import Type.UserInfo (UserInfo)
 import qualified Api.User
+import Type.Range (Range (Range))
+import qualified Type.Range as Range
 import qualified Api.Post
 
 type Api
@@ -85,13 +87,19 @@ server' = userServer :<|> postServer
   where
     userServer
          = jsonErr . Api.User.create
-      :<|> Api.User.list
+      :<|> Api.User.list .: ranged
     postServer
          = jsonErr . Api.Post.create
-      :<|> Api.Post.list
+      :<|> Api.Post.list .: ranged
+
+ranged :: Maybe Word -> Maybe Word -> Range
+ranged moff mlim = Range {Range.offset = moff, Range.limit = mlim}
 
 jsonErr :: (ToServantErr a, ToJSON a) => ExceptT a BlogApi b -> BlogApi b
 jsonErr mb =
   runExceptT mb >>= \case
     Left err -> throwError (toServantErr err) {errBody = encode err}
     Right res -> pure res
+
+(.:) :: (c -> d) -> (a -> b -> c) -> (a -> b -> d)
+(.:) = (.).(.)
