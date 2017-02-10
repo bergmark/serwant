@@ -2,6 +2,7 @@ module Api.Post
   ( create
   , list
   , get
+  , remove
   ) where
 
 import MyPrelude
@@ -81,18 +82,15 @@ create (UserPost usr pst) = do
         else modifyTVar pstsVar (Set.insert post) *> pure Nothing
   maybe (pure post) throwError merr
 
--- remove :: Handler WithPost
--- remove = mkIdHandler id handler
---   where
---     handler :: () -> Identifier -> ExceptT Reason_ WithPost ()
---     handler _ i = do
---       pstsVar <- lift . lift $ asks posts
---       merr <- liftIO . atomically $ do
---         mpost <- postFromIdentifier i pstsVar
---         case mpost of
---           Nothing -> pure . Just $ NotFound
---           Just post -> modifyTVar pstsVar (Set.delete post) >> pure Nothing
---       maybe (pure ()) throwError merr
+remove :: Identifier -> ExceptT (Reason Void) WithPost ()
+remove i = do
+  pstsVar <- lift . lift $ asks posts
+  merr <- atomicallyIO $ do
+    mpost <- postFromIdentifier i pstsVar
+    case mpost of
+      Nothing -> pure . Just $ NotFound
+      Just post -> modifyTVar pstsVar (Set.delete post) *> pure Nothing
+  maybe (pure ()) throwError merr
 
 -- | Convert a User and CreatePost into a Post that can be saved.
 toPost :: Int -> User -> CreatePost -> IO Post

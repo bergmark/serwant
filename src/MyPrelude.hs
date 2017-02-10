@@ -1,8 +1,10 @@
+{-# LANGUAGE NoMonomorphismRestriction #-}
 module MyPrelude
   ( module X
   , (.:)
   , (<$<)
   , (>$<)
+  , atomicallyIO
   ) where
 
 import Control.Concurrent.STM as X (STM, TVar, atomically, modifyTVar, newTVarIO, readTVar)
@@ -43,3 +45,6 @@ f >$< g = fmap (f . g)
 
 infixr 9 >$<
 infixr 8 <$<
+
+atomicallyIO :: MonadIO m => STM a -> m a
+atomicallyIO = liftIO . atomically
