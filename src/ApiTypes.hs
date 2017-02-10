@@ -14,7 +14,7 @@ import Type.Post (Post)
 
 data ServerData = ServerData
   { users    :: !(TVar (Set User))
-  , posts    :: TVar (Set Post)
+  , posts    :: !(TVar (Set Post))
 --  , comments :: TVar (HashMap Post.Id (Set Comment))
   }
 
