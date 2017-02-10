@@ -6,3 +6,4 @@ import "hint" HLint.Dollar
 import "hint" HLint.Generalise
 
 warn = return ==> pure
+warn = (>>) ==> (*>)

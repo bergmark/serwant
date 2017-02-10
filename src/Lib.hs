@@ -100,6 +100,3 @@ jsonErr mb =
   runExceptT mb >>= \case
     Left err -> throwError (toServantErr err) {errBody = encode err}
     Right res -> pure res
-
-(.:) :: (c -> d) -> (a -> b -> c) -> (a -> b -> d)
-(.:) = (.).(.)

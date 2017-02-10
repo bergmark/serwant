@@ -20,7 +20,9 @@ library
     DataKinds
     DeriveDataTypeable
     DeriveGeneric
+    FlexibleContexts
     LambdaCase
+    MultiParamTypeClasses
     NoImplicitPrelude
     OverloadedStrings
     TypeOperators
