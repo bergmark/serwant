@@ -22,7 +22,7 @@ import GHC.Generics as X (Generic)
 import Generics.Generic.Aeson as X (gparseJson, gtoJson)
 import Prelude.Compat as X
        (Applicative(..), Bool(..), Int, Either(..), Eq(..), Functor(..),
-        IO, Maybe(..), Monad(..), Num(..), Ord(..), Show(show), Word, (.), (&&),
-        (<$>), ($), (=<<), drop, error, flip, fromIntegral, id, maybe,
-        not, take, undefined)
+        IO, Maybe(..), Monad((>>=)), Num(..), Ord(..), Show(show), Word,
+        (.), (&&), (<$>), ($), (=<<), drop, error, flip, fromIntegral, id,
+        maybe, not, take, undefined)
 import Safe as X (headMay, readNote)

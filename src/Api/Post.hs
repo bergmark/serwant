@@ -56,7 +56,7 @@ get i = do
   mpost <- liftIO . atomically . postFromIdentifier i =<< (lift . lift) (asks posts)
   case mpost of
     Nothing -> throwError NotFound
-    Just a  -> return a
+    Just a  -> pure a
 
 -- | List Posts with the most recent posts first.
 list :: Range -> BlogApi [Post]
@@ -77,9 +77,9 @@ create (UserPost usr pst) = do
     if not vt
       then pure . Just $ InvalidTitle
       else if not (validContent pst)
-        then return . Just $ InvalidContent
-        else modifyTVar pstsVar (Set.insert post) >> return Nothing
-  maybe (return post) throwError merr
+        then pure . Just $ InvalidContent
+        else modifyTVar pstsVar (Set.insert post) *> pure Nothing
+  maybe (pure post) throwError merr
 
 -- remove :: Handler WithPost
 -- remove = mkIdHandler id handler
@@ -90,15 +90,15 @@ create (UserPost usr pst) = do
 --       merr <- liftIO . atomically $ do
 --         mpost <- postFromIdentifier i pstsVar
 --         case mpost of
---           Nothing -> return . Just $ NotFound
---           Just post -> modifyTVar pstsVar (Set.delete post) >> return Nothing
---       maybe (return ()) throwError merr
+--           Nothing -> pure . Just $ NotFound
+--           Just post -> modifyTVar pstsVar (Set.delete post) >> pure Nothing
+--       maybe (pure ()) throwError merr
 
 -- | Convert a User and CreatePost into a Post that can be saved.
 toPost :: Int -> User -> CreatePost -> IO Post
 toPost i u p = do
   t <- getCurrentTime
-  return Post
+  pure Post
     { Post.id          = i
     , Post.author      = User.name u
     , Post.createdTime = t

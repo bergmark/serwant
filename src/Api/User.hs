@@ -9,7 +9,7 @@ import qualified Data.Text     as T
 import ApiTypes (BlogApi, ServerData (..))
 import Type.User (User)
 import Type.UserInfo (UserInfo (..))
-import Type.Range (Range (Range))
+import Type.Range (Range)
 import qualified Type.Range as Range
 import Type.UserSignupError (UserSignupError (..))
 import qualified Type.User as User
@@ -42,7 +42,7 @@ create usr = do
       then pure . Just $ InvalidPassword
       else if not vu
         then pure . Just $ InvalidUserName
-        else modifyTVar usrs (Set.insert usr) >> pure Nothing
+        else modifyTVar usrs (Set.insert usr) *> pure Nothing
   maybe (pure $ toUserInfo usr) throwError merr
 
 -- | Convert a User into a representation that is safe to show to the public.
