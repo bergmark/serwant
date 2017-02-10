@@ -19,8 +19,10 @@ library
   default-extensions:
     DataKinds
     DeriveDataTypeable
+    DeriveFunctor
     DeriveGeneric
     FlexibleContexts
+    FlexibleInstances
     LambdaCase
     MultiParamTypeClasses
     NoImplicitPrelude

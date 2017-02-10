@@ -7,3 +7,4 @@ import "hint" HLint.Generalise
 
 warn = return ==> pure
 warn = (>>) ==> (*>)
+warn = liftIO . atomically ==> atomicallyIO

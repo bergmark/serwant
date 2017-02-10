@@ -14,7 +14,7 @@ import Control.Monad.Reader as X (MonadReader, ReaderT, asks, runReaderT)
 import Control.Monad.State as X (MonadState, StateT, gets)
 import Control.Monad.Trans as X (MonadIO (liftIO), lift)
 import Data.Aeson as X (ToJSON (..), FromJSON (..), encode)
-import Data.Foldable as X (elem, length)
+import Data.Foldable as X (elem, find, length)
 import Data.HashMap.Strict as X (HashMap)
 import Data.JSON.Schema as X (JSONSchema (..), gSchema)
 import Data.List as X (sortBy)
@@ -23,14 +23,15 @@ import Data.Semigroup as X (Semigroup (..))
 import Data.Set as X (Set)
 import Data.String.Conversions as X (StrictText, cs)
 import Data.Time as X (UTCTime, getCurrentTime)
-import Data.Void as X (Void)
+import Data.Void as X (Void, absurd)
 import GHC.Generics as X (Generic)
 import Generics.Generic.Aeson as X (gparseJson, gtoJson)
+import Data.Functor as X (Functor(..), void)
 import Prelude.Compat as X
-       (Applicative(..), Bool(..), Int, Either(..), Eq(..), Functor(..),
-        IO, Maybe(..), Monad((>>=)), Num(..), Ord(..), Show(show), Word,
-        (.), (&&), (<$>), ($), (=<<), drop, error, flip, fromIntegral, id,
-        maybe, not, take, undefined)
+       (Applicative(..), Bool(..), Int, Either(..), Eq(..), IO, Maybe(..),
+        Monad((>>=)), Num(..), Ord(..), Show(show), Word, (.), (&&), (<$>),
+        ($), (=<<), drop, error, flip, fromIntegral, id, maybe, not, take,
+        undefined)
 import Safe as X (headMay, readNote)
 
 (.:) :: (c -> d) -> (a -> b -> c) -> (a -> b -> d)
@@ -48,3 +49,6 @@ infixr 8 <$<
 
 atomicallyIO :: MonadIO m => STM a -> m a
 atomicallyIO = liftIO . atomically
+
+instance X.ToJSON X.Void where
+  toJSON = absurd

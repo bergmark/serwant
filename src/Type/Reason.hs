@@ -11,7 +11,7 @@ data Reason e
   | DomainReason e
   | NotAllowed
   | NotFound
-  deriving (Generic, Show)
+  deriving (Functor, Generic, Show)
 
 instance ToServantErr e => ToServantErr (Reason e) where
   toServantErr = \case

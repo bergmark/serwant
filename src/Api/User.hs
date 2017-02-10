@@ -15,19 +15,6 @@ import Type.UserSignupError (UserSignupError (..))
 import qualified Type.User as User
 import qualified Type.UserInfo as UserInfo
 
--- | User extends the root of the API with a reader containing the ways to identify a user in our URLs.
--- Currently only by the user name.
--- type WithUser = ReaderT User.Name BlogApi
-
--- | Defines the /user api end-point.
--- resource :: Resource BlogApi WithUser User.Name () Void
--- resource = mkResourceReader
---   { R.name   = "user" -- Name of the HTTP path segment.
---   , R.schema = withListing () $ named [("name", singleBy T.pack)]
---   , R.list   = const list -- requested by GET /user, gives a paginated listing of users.
---   , R.create = Just create -- PUT /user creates a new user
---   }
-
 list :: Range -> BlogApi [UserInfo]
 list r = do
   usrs <- liftIO . atomically . readTVar =<< asks users

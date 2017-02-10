@@ -1,5 +1,6 @@
 module Api.Post
-  ( create
+  ( Identifier (..)
+  , create
   , list
   , get
   , remove
@@ -27,12 +28,8 @@ import qualified Type.User       as User
 
 data Identifier
   = Latest
-  | ById Int
+  | ById Word
   deriving (Eq, Show)
-
--- | Post extends the root of the API with a reader containing the ways to identify a Post in our URLs.
--- Currently only by the title of the post.
-type WithPost = ReaderT Identifier BlogApi
 
 -- | Defines the /post api end-point.
 -- resource :: Resource BlogApi WithPost Identifier () Void
@@ -49,12 +46,12 @@ postFromIdentifier :: Identifier -> TVar (Set Post) -> STM (Maybe Post)
 postFromIdentifier i pv = finder <$> readTVar pv
   where
     finder = case i of
-      ById ident -> F.find ((== ident) . Post.id) . Set.toList
+      ById ident -> find ((== ident) . Post.id) . Set.toList
       Latest     -> headMay . sortBy (flip $ comparing Post.createdTime) . Set.toList
 
-get :: Identifier -> ExceptT (Reason Void) WithPost Post
+get :: Identifier -> ExceptT (Reason Void) BlogApi Post
 get i = do
-  mpost <- liftIO . atomically . postFromIdentifier i =<< (lift . lift) (asks posts)
+  mpost <- atomicallyIO . postFromIdentifier i =<< asks posts
   case mpost of
     Nothing -> throwError NotFound
     Just a  -> pure a
@@ -62,7 +59,7 @@ get i = do
 -- | List Posts with the most recent posts first.
 list :: Range -> BlogApi [Post]
 list r = do
-  psts <- liftIO . atomically . readTVar =<< asks posts
+  psts <- atomicallyIO . readTVar =<< asks posts
   pure . Range.list r . sortBy (flip $ comparing Post.createdTime) . Set.toList $ psts
 
 create :: UserPost -> ExceptT PostError BlogApi Post
@@ -70,10 +67,10 @@ create (UserPost usr pst) = do
   -- Make sure the credentials are valid
 --  checkLogin usr
   pstsVar <- asks posts
-  psts <- liftIO . atomically . readTVar $ pstsVar
-  post <- liftIO $ toPost (Set.size psts + 1) usr pst
+  psts <- atomicallyIO . readTVar $ pstsVar
+  post <- liftIO $ toPost (fromIntegral (Set.size psts) + 1) usr pst
   -- Validate and save the post in the same transaction.
-  merr <- liftIO . atomically $ do
+  merr <- atomicallyIO $ do
     let vt = validTitle pst psts
     if not vt
       then pure . Just $ InvalidTitle
@@ -82,9 +79,9 @@ create (UserPost usr pst) = do
         else modifyTVar pstsVar (Set.insert post) *> pure Nothing
   maybe (pure post) throwError merr
 
-remove :: Identifier -> ExceptT (Reason Void) WithPost ()
+remove :: Identifier -> ExceptT (Reason Void) BlogApi ()
 remove i = do
-  pstsVar <- lift . lift $ asks posts
+  pstsVar <- asks posts
   merr <- atomicallyIO $ do
     mpost <- postFromIdentifier i pstsVar
     case mpost of
@@ -93,7 +90,7 @@ remove i = do
   maybe (pure ()) throwError merr
 
 -- | Convert a User and CreatePost into a Post that can be saved.
-toPost :: Int -> User -> CreatePost -> IO Post
+toPost :: Word -> User -> CreatePost -> IO Post
 toPost i u p = do
   t <- getCurrentTime
   pure Post

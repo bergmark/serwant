@@ -6,7 +6,7 @@ import Data.Time (UTCTime)
 
 import qualified Type.User as User
 
-type Id = Int
+type Id = Word
 type Title = StrictText
 
 data Post = Post
