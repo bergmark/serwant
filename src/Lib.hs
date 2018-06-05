@@ -49,15 +49,11 @@ type Ranged a
 api :: Proxy Api
 api = Proxy
 
-blogApiToHandler' :: ServerData -> (BlogApi :~> Handler)
-blogApiToHandler' sd = NT $ runBlogApi sd
-
 app :: ServerData -> Application
 app sd = serve api (server sd)
 
--- server :: ServerData -> ServerT Api (ExceptT ServantErr IO)
 server :: ServerData -> Server Api
-server sd = enter (blogApiToHandler' sd) server'
+server sd = hoistServer api (runBlogApi sd) server'
 
 server' :: ServerT Api BlogApi
 server' = userServer :<|> postServer
